@@ -1,9 +1,7 @@
 /* ===== TU DISTRIBUTOR - SCRIPT.JS ===== */
 
-// ===== CONSTANTS =====
 const WA_NUMBER = '628988995637';
 
-// ===== DEFAULT PRODUCTS =====
 const DEFAULT_PRODUCTS = [
   { id: 'p1', name: 'AQUA 200ml Cup', category: 'AQUA', desc: 'Air mineral murni AQUA ukuran cup 200ml, cocok untuk acara dan meeting. Tersedia satuan & karton.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
   { id: 'p2', name: 'AQUA 330ml Mini', category: 'AQUA', desc: 'Botol mini AQUA 330ml, praktis dibawa kemana saja. Air mineral alami pegunungan terbaik.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
@@ -19,7 +17,6 @@ const DEFAULT_PRODUCTS = [
   { id: 'p12', name: 'Mizone Passion Fruit', category: 'Mizone', desc: 'Mizone rasa Passion Fruit yang eksotis, kesegaran tropis dalam setiap tegukan.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
 ];
 
-// ===== STATE =====
 let products = [];
 let cart = [];
 let transactions = [];
@@ -30,7 +27,6 @@ let currentFilter = 'all';
 let currentSearch = '';
 let editingProductId = null;
 
-// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   loadData();
   initSplash();
@@ -40,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollReveal();
   initAdminTap();
   initPinInputs();
+  initBackToTop();
+  initCounterAnimation();
+  initStockBarAnimation();
   renderProducts();
   renderAdminProducts();
   renderTransactions();
@@ -48,12 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ===== LOCAL STORAGE =====
 function loadData() {
-  const storedProducts = localStorage.getItem('tu_products');
-  products = storedProducts ? JSON.parse(storedProducts) : [...DEFAULT_PRODUCTS];
+  const sp = localStorage.getItem('tu_products');
+  products = sp ? JSON.parse(sp) : [...DEFAULT_PRODUCTS];
   cart = JSON.parse(localStorage.getItem('tu_cart') || '[]');
   transactions = JSON.parse(localStorage.getItem('tu_transactions') || '[]');
 }
-
 function saveProducts() { localStorage.setItem('tu_products', JSON.stringify(products)); }
 function saveCart() { localStorage.setItem('tu_cart', JSON.stringify(cart)); }
 function saveTransactions() { localStorage.setItem('tu_transactions', JSON.stringify(transactions)); }
@@ -77,10 +75,24 @@ function setTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
   document.getElementById('themeToggle').querySelector('.theme-icon').textContent = t === 'dark' ? '🌙' : '☀️';
   localStorage.setItem('tu_theme', t);
+  // Update bubbles for new theme
+  updateBubbleColors(t);
 }
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme');
   setTheme(current === 'dark' ? 'light' : 'dark');
+}
+function updateBubbleColors(theme) {
+  const bubbles = document.querySelectorAll('.bubble');
+  bubbles.forEach(b => {
+    if (theme === 'light') {
+      b.style.background = 'radial-gradient(circle at 30% 30%, rgba(0,150,255,0.2), rgba(0,100,200,0.08))';
+      b.style.borderColor = 'rgba(0,150,255,0.2)';
+    } else {
+      b.style.background = '';
+      b.style.borderColor = '';
+    }
+  });
 }
 
 // ===== NAVBAR =====
@@ -119,6 +131,56 @@ function updateActiveNav() {
   });
 }
 
+// ===== BACK TO TOP =====
+function initBackToTop() {
+  const btn = document.getElementById('backToTop');
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+}
+
+// ===== COUNTER ANIMATION =====
+function initCounterAnimation() {
+  const counters = document.querySelectorAll('.stat-num[data-count]');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => observer.observe(c));
+}
+function animateCounter(el) {
+  const target = parseInt(el.dataset.count);
+  const duration = 1500;
+  const step = target / (duration / 16);
+  let current = 0;
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = Math.floor(current);
+    if (current >= target) clearInterval(timer);
+  }, 16);
+}
+
+// ===== STOCK BAR ANIMATION =====
+function initStockBarAnimation() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const bar = entry.target.querySelector('.stock-bar');
+        if (bar) {
+          const w = bar.dataset.width;
+          setTimeout(() => { bar.style.width = w; }, 200);
+        }
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.stock-indicator').forEach(el => observer.observe(el));
+}
+
 // ===== HERO BUBBLES =====
 function initHero() {
   const container = document.getElementById('bubbles');
@@ -135,6 +197,12 @@ function createBubble(container) {
     animation-delay:${Math.random() * 8}s;
   `;
   container.appendChild(b);
+  // Apply current theme color
+  const theme = document.documentElement.getAttribute('data-theme');
+  if (theme === 'light') {
+    b.style.background = 'radial-gradient(circle at 30% 30%, rgba(0,150,255,0.2), rgba(0,100,200,0.08))';
+    b.style.borderColor = 'rgba(0,150,255,0.2)';
+  }
   b.addEventListener('animationend', () => {
     b.remove();
     createBubble(container);
@@ -174,24 +242,47 @@ function renderProducts() {
 
   grid.innerHTML = filtered.map(p => productCardHTML(p)).join('');
 
-  // Re-observe new cards
   grid.querySelectorAll('.reveal').forEach(el => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
     }, { threshold: 0.05 });
     observer.observe(el);
   });
+
+  // Trigger stock bar animation
+  setTimeout(() => {
+    grid.querySelectorAll('.stock-indicator').forEach(el => {
+      const bar = el.querySelector('.stock-bar');
+      if (bar && !bar.style.width) {
+        bar.style.width = bar.dataset.width;
+      }
+    });
+  }, 300);
+}
+
+function getStockBarWidth(status) {
+  if (status === 'ready') return Math.floor(Math.random() * 30 + 65) + '%';
+  if (status === 'warning') return Math.floor(Math.random() * 20 + 20) + '%';
+  return '10%';
 }
 
 function productCardHTML(p) {
   const statusMap = { ready: ['status-ready', 'READY'], warning: ['status-warning', 'SEGERA HABIS'], empty: ['status-empty', 'HABIS'] };
   const [cls, label] = statusMap[p.status] || statusMap.ready;
   const inCart = cart.find(c => c.id === p.id);
+  const stockWidth = getStockBarWidth(p.status);
+  const stockLabel = p.status === 'ready' ? 'Stok tersedia' : p.status === 'warning' ? 'Stok hampir habis' : 'Stok habis';
   return `
   <div class="product-card reveal" id="card-${p.id}">
     <div class="product-img-wrap">
       <img class="product-img" src="${p.image || 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80'}" alt="${p.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80'" />
       <span class="product-status ${cls}">${label}</span>
+    </div>
+    <div class="stock-indicator">
+      <div class="stock-bar-wrap">
+        <div class="stock-bar ${p.status}" style="width:0%" data-width="${stockWidth}"></div>
+      </div>
+      <div class="stock-label">${stockLabel}</div>
     </div>
     <div class="product-body">
       <div class="product-category">${p.category}</div>
@@ -217,7 +308,6 @@ document.addEventListener('DOMContentLoaded', () => {
     currentFilter = btn.dataset.cat;
     renderProducts();
   });
-
   document.getElementById('searchInput').addEventListener('input', e => {
     currentSearch = e.target.value;
     renderProducts();
@@ -234,7 +324,6 @@ function addToCart(id) {
   saveCart();
   updateCartCount();
   renderProducts();
-  // Bump animation
   const countEl = document.getElementById('cartCount');
   countEl.classList.remove('bump');
   void countEl.offsetWidth;
@@ -242,12 +331,10 @@ function addToCart(id) {
   setTimeout(() => countEl.classList.remove('bump'), 300);
   showToast(`${product.name} ditambahkan ke keranjang 🛒`);
 }
-
 function updateCartCount() {
   const total = cart.reduce((s, i) => s + i.qty, 0);
   document.getElementById('cartCount').textContent = total;
 }
-
 function renderCart() {
   const container = document.getElementById('cartItems');
   updateCartCount();
@@ -273,26 +360,18 @@ function renderCart() {
   `).join('');
   document.getElementById('cartTotal').textContent = cart.reduce((s, i) => s + i.qty, 0);
 }
-
 function changeQty(id, delta) {
   const item = cart.find(c => c.id === id);
   if (!item) return;
   item.qty = Math.max(1, item.qty + delta);
-  saveCart();
-  renderCart();
+  saveCart(); renderCart();
 }
-
 function removeFromCart(id) {
   cart = cart.filter(c => c.id !== id);
-  saveCart();
-  renderCart();
-  renderProducts();
-  updateCartCount();
+  saveCart(); renderCart(); renderProducts(); updateCartCount();
 }
-
 document.getElementById('cartBtn').addEventListener('click', () => {
-  renderCart();
-  openModal('cartModal');
+  renderCart(); openModal('cartModal');
 });
 
 // ===== CHECKOUT =====
@@ -301,78 +380,35 @@ function checkout() {
   closeModal('cartModal');
   openModal('checkoutModal');
 }
-
 function processCheckout() {
   const name = document.getElementById('buyerName').value.trim();
   const phone = document.getElementById('buyerPhone').value.trim();
   const address = document.getElementById('buyerAddress').value.trim();
   const note = document.getElementById('cartNote').value.trim();
-
-  if (!name || !phone || !address) {
-    showToast('Lengkapi semua data pemesanan!', 'error');
-    return;
-  }
-
+  if (!name || !phone || !address) { showToast('Lengkapi semua data pemesanan!', 'error'); return; }
   const invoice = generateInvoice();
   const now = new Date();
   const dateStr = now.toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
-
-  // Build message
-  let msg = `╔══════════════════════╗\n`;
-  msg += `║  🌊 TU DISTRIBUTOR  ║\n`;
-  msg += `║   Air Minum Premium   ║\n`;
-  msg += `╚══════════════════════╝\n\n`;
-  msg += `📋 *PESANAN BARU*\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `🔖 Invoice  : ${invoice}\n`;
-  msg += `📅 Waktu    : ${dateStr}\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `👤 *DATA PEMBELI*\n`;
-  msg += `Nama       : ${name}\n`;
-  msg += `WhatsApp   : ${phone}\n`;
-  msg += `Alamat     :\n${address}\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+  let msg = `╔══════════════════════╗\n║  🌊 TU DISTRIBUTOR  ║\n║   Air Minum Premium   ║\n╚══════════════════════╝\n\n`;
+  msg += `📋 *PESANAN BARU*\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `🔖 Invoice  : ${invoice}\n📅 Waktu    : ${dateStr}\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `👤 *DATA PEMBELI*\nNama       : ${name}\nWhatsApp   : ${phone}\nAlamat     :\n${address}\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `🛒 *DAFTAR PRODUK*\n`;
-  cart.forEach((item, i) => {
-    msg += `${i + 1}. ${item.name} (${item.category})\n   Qty: ${item.qty} unit\n`;
-  });
-  msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `📦 Total Item  : ${cart.reduce((s, i) => s + i.qty, 0)} item\n`;
+  cart.forEach((item, i) => { msg += `${i + 1}. ${item.name} (${item.category})\n   Qty: ${item.qty} unit\n`; });
+  msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n📦 Total Item  : ${cart.reduce((s, i) => s + i.qty, 0)} item\n`;
   if (note) msg += `📝 Catatan     : ${note}\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `✅ Mohon konfirmasi pesanan ini.\nTerima kasih telah memesan di TU Distributor! 🙏`;
-
-  // Save transaction
-  const tx = {
-    invoice,
-    buyer: name,
-    phone,
-    address,
-    products: [...cart],
-    note,
-    time: now.toISOString(),
-    timeStr: dateStr
-  };
+  msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n✅ Mohon konfirmasi pesanan ini.\nTerima kasih telah memesan di TU Distributor! 🙏`;
+  const tx = { invoice, buyer: name, phone, address, products: [...cart], note, time: now.toISOString(), timeStr: dateStr };
   transactions.unshift(tx);
   saveTransactions();
-
-  // Clear cart
-  cart = [];
-  saveCart();
-  renderCart();
-  renderProducts();
-  updateCartCount();
-
+  cart = []; saveCart(); renderCart(); renderProducts(); updateCartCount();
   closeModal('checkoutModal');
   document.getElementById('buyerName').value = '';
   document.getElementById('buyerPhone').value = '';
   document.getElementById('buyerAddress').value = '';
-
-  // Open WhatsApp
   openWhatsApp(msg);
   showToast(`Pesanan ${invoice} berhasil dikirim! ✅`);
 }
-
 function generateInvoice() {
   const d = new Date();
   const pad = n => String(n).padStart(2, '0');
@@ -435,8 +471,7 @@ document.addEventListener('click', e => {
 
 // ===== MODALS =====
 function openModal(id) {
-  const el = document.getElementById(id);
-  el.classList.add('open');
+  document.getElementById(id).classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 function closeModal(id) {
@@ -444,11 +479,7 @@ function closeModal(id) {
   document.body.style.overflow = '';
 }
 document.querySelectorAll('.modal-overlay').forEach(modal => {
-  modal.addEventListener('click', e => {
-    if (e.target === modal) {
-      closeModal(modal.id);
-    }
-  });
+  modal.addEventListener('click', e => { if (e.target === modal) { closeModal(modal.id); } });
 });
 
 // ===== ADMIN TAP =====
@@ -469,16 +500,13 @@ function initAdminTap() {
 function initPinInputs() {
   const inputs = document.querySelectorAll('.pin-digit');
   inputs.forEach((input, i) => {
-    input.addEventListener('input', () => {
-      if (input.value && i < inputs.length - 1) inputs[i + 1].focus();
-    });
+    input.addEventListener('input', () => { if (input.value && i < inputs.length - 1) inputs[i + 1].focus(); });
     input.addEventListener('keydown', e => {
       if (e.key === 'Backspace' && !input.value && i > 0) inputs[i - 1].focus();
       if (e.key === 'Enter') checkAdminPin();
     });
   });
 }
-
 function checkAdminPin() {
   const pin = Array.from(document.querySelectorAll('.pin-digit')).map(i => i.value).join('');
   const errEl = document.getElementById('pinError');
@@ -488,20 +516,17 @@ function checkAdminPin() {
     isAdmin = true;
     document.getElementById('adminDashboard').classList.add('open');
     document.querySelectorAll('.pin-digit').forEach(i => i.value = '');
-    renderAdminProducts();
-    renderTransactions();
+    renderAdminProducts(); renderTransactions();
   } else {
     errEl.textContent = 'PIN salah! Coba lagi.';
     document.querySelectorAll('.pin-digit').forEach(i => i.value = '');
     document.querySelector('.pin-digit').focus();
   }
 }
-
 function logoutAdmin() {
   isAdmin = false;
   document.getElementById('adminDashboard').classList.remove('open');
 }
-
 function switchAdminTab(name) {
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
@@ -551,26 +576,16 @@ function editProduct(id) {
   document.getElementById('prodStatus').value = p.status;
   document.getElementById('prodImage').value = p.image || '';
 }
-
 function deleteProduct(id) {
   if (!confirm('Hapus produk ini?')) return;
   products = products.filter(p => p.id !== id);
-  saveProducts();
-  renderAdminProducts();
-  renderProducts();
+  saveProducts(); renderAdminProducts(); renderProducts();
   showToast('Produk dihapus!');
 }
-
 function changeStatus(id, status) {
   const p = products.find(x => x.id === id);
-  if (p) {
-    p.status = status;
-    saveProducts();
-    renderProducts();
-    renderAdminProducts();
-  }
+  if (p) { p.status = status; saveProducts(); renderProducts(); renderAdminProducts(); }
 }
-
 function saveProduct() {
   const name = document.getElementById('prodName').value.trim();
   const category = document.getElementById('prodCategory').value;
@@ -578,23 +593,16 @@ function saveProduct() {
   const status = document.getElementById('prodStatus').value;
   const image = document.getElementById('prodImage').value.trim();
   const editId = document.getElementById('editProductId').value;
-
   if (!name) { showToast('Nama produk wajib diisi!', 'error'); return; }
-
   if (editId) {
     const p = products.find(x => x.id === editId);
     if (p) { p.name = name; p.category = category; p.desc = desc; p.status = status; if (image) p.image = image; }
   } else {
     products.push({ id: 'p' + Date.now(), name, category, desc, status, image: image || 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' });
   }
-
-  saveProducts();
-  renderAdminProducts();
-  renderProducts();
-  resetProductForm();
+  saveProducts(); renderAdminProducts(); renderProducts(); resetProductForm();
   showToast(editId ? 'Produk berhasil diupdate!' : 'Produk baru berhasil ditambahkan!');
 }
-
 function resetProductForm() {
   document.getElementById('editProductId').value = '';
   document.getElementById('addProductTitle').textContent = 'Tambah Produk Baru';
@@ -604,7 +612,6 @@ function resetProductForm() {
   document.getElementById('prodStatus').value = 'ready';
   document.getElementById('prodImage').value = '';
 }
-
 function handleImageUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -621,50 +628,36 @@ function renderTransactions(filter = '') {
   let txs = transactions;
   if (filter) txs = txs.filter(t => t.buyer.toLowerCase().includes(filter.toLowerCase()) || t.invoice.toLowerCase().includes(filter.toLowerCase()));
   if (date) txs = txs.filter(t => t.time && t.time.startsWith(date));
-
   if (txs.length === 0) {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-secondary);">Belum ada transaksi</td></tr>`;
     return;
   }
-
   tbody.innerHTML = txs.map(t => `
     <tr>
       <td><code style="font-size:12px;color:var(--cyan);">${t.invoice}</code></td>
-      <td>
-        <div style="font-weight:600;">${t.buyer}</div>
-        <div style="font-size:12px;color:var(--text-secondary);">${t.phone}</div>
-      </td>
+      <td><div style="font-weight:600;">${t.buyer}</div><div style="font-size:12px;color:var(--text-secondary);">${t.phone}</div></td>
       <td style="font-size:13px;">${t.products.map(p => `${p.name} ×${p.qty}`).join('<br/>')}</td>
       <td style="font-size:12px;color:var(--text-secondary);">${t.timeStr}</td>
-      <td>
-        <button class="btn btn-danger btn-sm" onclick="deleteTransaction('${t.invoice}')">🗑</button>
-      </td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteTransaction('${t.invoice}')">🗑</button></td>
     </tr>
   `).join('');
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   const searchTx = document.getElementById('searchTx');
   const filterDate = document.getElementById('filterDate');
   if (searchTx) searchTx.addEventListener('input', e => renderTransactions(e.target.value));
   if (filterDate) filterDate.addEventListener('change', () => renderTransactions(searchTx?.value || ''));
 });
-
 function deleteTransaction(invoice) {
   if (!confirm('Hapus transaksi ini?')) return;
   transactions = transactions.filter(t => t.invoice !== invoice);
-  saveTransactions();
-  renderTransactions();
+  saveTransactions(); renderTransactions();
 }
-
 function clearAllTransactions() {
   if (!confirm('Hapus SEMUA histori transaksi? Tindakan ini tidak bisa dibatalkan!')) return;
-  transactions = [];
-  saveTransactions();
-  renderTransactions();
+  transactions = []; saveTransactions(); renderTransactions();
   showToast('Semua transaksi dihapus');
 }
-
 function exportTransactions() {
   if (transactions.length === 0) { showToast('Tidak ada transaksi untuk diekspor', 'error'); return; }
   const headers = ['Invoice', 'Nama', 'WhatsApp', 'Alamat', 'Produk', 'Waktu'];
@@ -690,11 +683,11 @@ function showToast(msg, type = 'success') {
     toastEl = document.createElement('div');
     toastEl.style.cssText = `
       position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px);
-      background:rgba(13,34,64,0.95); border:1px solid var(--glass-border);
+      background:var(--card-bg); border:1px solid var(--glass-border);
       backdrop-filter:blur(20px); color:var(--text-primary);
       padding:12px 24px; border-radius:50px; font-size:14px; font-weight:500;
       z-index:9999; transition:all 0.3s ease; opacity:0; white-space:nowrap;
-      box-shadow:0 8px 32px rgba(0,153,255,0.2);
+      box-shadow:var(--shadow);
     `;
     document.body.appendChild(toastEl);
   }
