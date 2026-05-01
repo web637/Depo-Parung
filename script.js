@@ -389,7 +389,7 @@ function processCheckout() {
   const invoice = generateInvoice();
   const now = new Date();
   const dateStr = now.toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
-  let msg = `╔══════════════════════╗\n║  🌊 TU DISTRIBUTOR  ║\n║   Air Minum Premium   ║\n╚══════════════════════╝\n\n`;
+  let msg = `╔══════════════════════╗\n║  🌊DISTRIBUTOR DEPO PARUNG   ║\n║   Air Minum Premium   ║\n╚══════════════════════╝\n\n`;
   msg += `📋 *PESANAN BARU*\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `🔖 Invoice  : ${invoice}\n📅 Waktu    : ${dateStr}\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `👤 *DATA PEMBELI*\nNama       : ${name}\nWhatsApp   : ${phone}\nAlamat     :\n${address}\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
@@ -397,7 +397,7 @@ function processCheckout() {
   cart.forEach((item, i) => { msg += `${i + 1}. ${item.name} (${item.category})\n   Qty: ${item.qty} unit\n`; });
   msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n📦 Total Item  : ${cart.reduce((s, i) => s + i.qty, 0)} item\n`;
   if (note) msg += `📝 Catatan     : ${note}\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n✅ Mohon konfirmasi pesanan ini.\nTerima kasih telah memesan di TU Distributor! 🙏`;
+  msg += `━━━━━━━━━━━━━━━━━━━━━━━━\n✅ Mohon konfirmasi pesanan ini.\nTerima kasih telah memesan di Distributor Depo Parung 🙏`;
   const tx = { invoice, buyer: name, phone, address, products: [...cart], note, time: now.toISOString(), timeStr: dateStr };
   transactions.unshift(tx);
   saveTransactions();
