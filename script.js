@@ -3,18 +3,18 @@
 const WA_NUMBER = '628988995637';
 
 const DEFAULT_PRODUCTS = [
-  { id: 'p1', name: 'AQUA 200ml Cup', category: 'AQUA', desc: 'Air mineral murni AQUA ukuran cup 200ml, cocok untuk acara dan meeting. Tersedia satuan & karton.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p2', name: 'AQUA 330ml Mini', category: 'AQUA', desc: 'Botol mini AQUA 330ml, praktis dibawa kemana saja. Air mineral alami pegunungan terbaik.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p3', name: 'AQUA 600ml', category: 'AQUA', desc: 'AQUA botol 600ml ukuran standar paling populer. Kesegaran terjamin setiap tegukan.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p4', name: 'AQUA 1500ml', category: 'AQUA', desc: 'AQUA botol besar 1500ml, ideal untuk keluarga dan kegiatan outdoor. Tersedia satuan & karton.', status: 'warning', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p5', name: 'VIT 200ml Cup', category: 'VIT', desc: 'Air minum VIT ukuran cup 200ml, segar dan higienis. Cocok untuk distribusi massal.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p6', name: 'VIT 220ml Moksa', category: 'VIT', desc: 'VIT Moksa 220ml dengan kandungan mineral alami pilihan. Praktis dan menyehatkan.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p7', name: 'VIT 330ml Mini', category: 'VIT', desc: 'Botol VIT 330ml ukuran mini yang sempurna untuk berbagai kebutuhan harian Anda.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p8', name: 'VIT 550ml', category: 'VIT', desc: 'VIT botol 550ml ukuran tengah, pas untuk aktivitas harian dan olahraga ringan.', status: 'warning', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p9', name: 'VIT 1500ml', category: 'VIT', desc: 'VIT botol jumbo 1500ml, hemat dan ekonomis untuk konsumsi keluarga sehari-hari.', status: 'empty', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p10', name: 'Mizone Original', category: 'Mizone', desc: 'Mizone minuman isotonik rasa Original, membantu rehidrasi tubuh setelah aktivitas fisik.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p11', name: 'Mizone Apple Guava', category: 'Mizone', desc: 'Mizone rasa Apple Guava segar dan menyehatkan, kaya vitamin C untuk imunitas tubuh.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
-  { id: 'p12', name: 'Mizone Passion Fruit', category: 'Mizone', desc: 'Mizone rasa Passion Fruit yang eksotis, kesegaran tropis dalam setiap tegukan.', status: 'ready', image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80' },
+  { id: 'p1', name: 'AQUA 200ml Cup', category: 'AQUA', desc: 'Air mineral murni AQUA ukuran cup 200ml, cocok untuk acara dan meeting. Tersedia satuan & karton.', status: 'ready', image: './img/aqua1.png' },
+  { id: 'p2', name: 'AQUA 330ml Mini', category: 'AQUA', desc: 'Botol mini AQUA 330ml, praktis dibawa kemana saja. Air mineral alami pegunungan terbaik.', status: 'ready', image: './img/aqua1.png' },
+  { id: 'p3', name: 'AQUA 600ml', category: 'AQUA', desc: 'AQUA botol 600ml ukuran standar paling populer. Kesegaran terjamin setiap tegukan.', status: 'ready', image: './img/aqua1.png' },
+  { id: 'p4', name: 'AQUA 1500ml', category: 'AQUA', desc: 'AQUA botol besar 1500ml, ideal untuk keluarga dan kegiatan outdoor. Tersedia satuan & karton.', status: 'warning', image: './img/aqua1.png' },
+  { id: 'p5', name: 'VIT 200ml Cup', category: 'VIT', desc: 'Air minum VIT ukuran cup 200ml, segar dan higienis. Cocok untuk distribusi massal.', status: 'ready', image: './img/aqua1.png' },
+  { id: 'p6', name: 'VIT 220ml Moksa', category: 'VIT', desc: 'VIT Moksa 220ml dengan kandungan mineral alami pilihan. Praktis dan menyehatkan.', status: 'ready', image: './img/aqua1.png' },
+  { id: 'p7', name: 'VIT 330ml Mini', category: 'VIT', desc: 'Botol VIT 330ml ukuran mini yang sempurna untuk berbagai kebutuhan harian Anda.', status: 'ready', image: './img/aqua1.png' },
+  { id: 'p8', name: 'VIT 550ml', category: 'VIT', desc: 'VIT botol 550ml ukuran tengah, pas untuk aktivitas harian dan olahraga ringan.', status: 'warning', image: './img/aqua1.png' },
+  { id: 'p9', name: 'VIT 1500ml', category: 'VIT', desc: 'VIT botol jumbo 1500ml, hemat dan ekonomis untuk konsumsi keluarga sehari-hari.', status: 'empty', image: './img/aqua1.png' },
+  { id: 'p10', name: 'Mizone Original', category: 'Mizone', desc: 'Mizone minuman isotonik rasa Original, membantu rehidrasi tubuh setelah aktivitas fisik.', status: 'ready', image: './img/aqua1.png' },
+  { id: 'p11', name: 'Mizone Apple Guava', category: 'Mizone', desc: 'Mizone rasa Apple Guava segar dan menyehatkan, kaya vitamin C untuk imunitas tubuh.', status: 'ready', image: './img/aqua1.png' },
+  { id: 'p12', name: 'Mizone Passion Fruit', category: 'Mizone', desc: 'Mizone rasa Passion Fruit yang eksotis, kesegaran tropis dalam setiap tegukan.', status: 'ready', image: './img/aqua1.png' },
 ];
 
 let products = [];
